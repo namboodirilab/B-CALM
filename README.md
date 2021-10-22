@@ -1,5 +1,5 @@
 # Behavior Controller for Associative Learning and Memory Software and Hardware Introduction 
-This readme file briefly introduces the current established behaviorial task scripts, graphical user interface(GUI) system, circuit and behavioral box layout. 
+This readme file briefly introduces the current established behaviorial task scripts, graphical user interface(GUI) system and circuit/system overview. 
 
 
 ### MATLAB and GUI
@@ -13,6 +13,8 @@ This readme file briefly introduces the current established behaviorial task scr
   [Namlab_behavior_lickforreward.ino](Namlab_behavior_lickforreward.ino) - This is experiment three in the GUI, for operant/instrumental action-reward associated tasks. <br />
   [Namlab_behavior_decisionmaking.ino](Namlab_behavior_decisionmaking.ino) - This is experiment four in the GUI, mainly for decision making tasks with the possible implentation of different cues, reward magnitudes, and delays for either choices. <br />
   [Namlab_behavior_ramptiming.ino](Namlab_behavior_ramptiming.ino) - This is experiment six in the GUI, for studying a ramp timing task with reward magnitude varying based on the ramp. <br />
-###
+### Circuit overview
   [circuit setup](circuit_setup.pdf) - This is a schematic circuit diagram containing a breadboard and hardwares pins interacting with the arduino mega board 2560. <br />
   [circuit example](circuit_example.pdf) - This is a complete circuit example including the breadboard, arduino board, breakout boards, wire wrapping, and the plastic box setup. <br />
+  [System overview](Systemoverview.png) - This is a system overview of how the MATLAB, arduino/circuit board and our hardware & behavioral box interact during a task. 
+  

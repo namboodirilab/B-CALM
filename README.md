@@ -16,6 +16,6 @@ This readme file briefly introduces the current established behaviorial task scr
 ### Circuit overview
   [circuit setup](circuit_setup.pdf) - This is a schematic circuit diagram containing a breadboard and hardwares pins interacting with the arduino mega board 2560. <br />
   [circuit example](circuit_example.pdf) - This is a complete circuit example including the breadboard, arduino board, breakout boards, wire wrapping, and the plastic box setup. <br />
-  [hard-drawn circuit diagram](circuit_handdrawn.jpg) - This is a hand-drawn circuit diagram for the current system, including speakers, solenoids, retracting solenoids and lick detectors. 
+  [hard-drawn circuit diagram](circuit_handdrawn.jpg) - This is a hand-drawn circuit diagram for the current system, including speakers, solenoids, retracting solenoids and lick detectors. <br />
   [System overview](Systemoverview.png) - This is a system overview of how the MATLAB, arduino/circuit board and our hardware & behavioral box interact during a task. 
   

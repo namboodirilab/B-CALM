@@ -116,14 +116,24 @@
 //97) variable interval flag for lick 2s. 1==variable, 0==fixed
 //98) light number for lick 1
 //99) light number for lick 2
-//100) exponent factor for ramp timing 
-//101) laser on flag for CS1, 1==laser on, 0==laser off
-//102) laser on flag for CS2, 1==laser on, 0==laser off
-//103) laser on flag for CS3, 1==laser on, 0==laser off
-//104) fixed reward check for left lick tube (lick tube 1) for delay discounting task 
-//105) fixed reward check for right lick tube (lick tube 2) for delay discounting task 
-//106) max delay to reward for ramp timing task 
-//107) laser flag for reward in ramp timing task, triggered by the first lick after cue if reward is bigger than a certain amount
+//100) laser on flag for CS1, 1==laser on, 0==laser off
+//101) laser on flag for CS2, 1==laser on, 0==laser off
+//102) laser on flag for CS3, 1==laser on, 0==laser off
+//103) fixed reward check for left lick tube (lick tube 1) for delay discounting task
+//104) fixed reward check for right lick tube (lick tube 2) for delay discounting task
+//105) reward laser check flag 1==laser, 0==no laser
+//106) ramp max delay to CS1 for ramp timing task
+//107) ramp max delay to CS2 for ramp timing task 
+//108) ramp max delay to CS3 for ramp timing task 
+//109) exponent factor for ramp function for CS1
+//110) exponent factor for ramp function for CS2
+//111) exponent factor for ramp function for CS3
+//112) frequency increasing or decreasing for CS1
+//113) frequency increasing or decreasing for CS2
+//114) frequency increasing or decreasing for CS3
+//115) delay between sound cue and light cue if both are delivered for CS1, if>0, sound precedes light, if==0, occur at the same time, if<0 light precedes sound
+//116) delay between sound cue and light cue if both are delivered for CS2, if>0, sound precedes light, if==0, occur at the same time, if<0 light precedes sound
+//117) delay between sound cue and light cue if both are delivered for CS3, if>0, sound precedes light, if==0, occur at the same time, if<0 light precedes sound
 
 #include <math.h>
 #include <avr/wdt.h>
@@ -194,9 +204,13 @@ boolean rewardactive;
 unsigned long maxdelaytosolenoid;
 unsigned long cueonset;
 float actualopentime;           // actual open time for solenoid in ramp timing task
-unsigned long ramptimingexp;            // exponent factor for ramptiming task reward openning time function;
-unsigned long rampmaxdelay;
 unsigned long timeforfirstlick;
+unsigned long CSrampmaxdelay[numCS];
+unsigned long CSrampexp[numCS];
+unsigned long CSincrease[numCS];
+signed long delaybetweensoundandlight[numCS];
+boolean cueover;                  // indicator for cue to be over or not
+unsigned long secondcue;          // for second cue in both cues task
 
 const int numlicktube = 2;       // number of recording lick tubes for lick dependent experiments
 unsigned long reqlicknum[numlicktube];
@@ -602,13 +616,13 @@ void setup() {
   }
 
   truncITI = min(3 * meanITI, maxITI); //truncation is set at 3 times the meanITI or that hardcoded in maxITI; used for exponential distribution
-  if (meanITI==maxITI) {
-    nextcue = meanITI;    
+  if (meanITI == maxITI) {
+    nextcue = meanITI;
   }
   else {
-    if (intervaldistribution == 1 || intervaldistribution ==3) { // generate exponential random numbers for itis
+    if (intervaldistribution == 1 || intervaldistribution == 3) { // generate exponential random numbers for itis
       tempITI = 0;
-      while (tempITI<=minITI) {
+      while (tempITI <= minITI) {
         u = random(0, 10000);
         temp = (float)u / 10000;
         temp1 = (float)truncITI / meanITI;
@@ -618,14 +632,14 @@ void setup() {
         temp = -log(1 - temp);
         tempITI = (unsigned long)mindelaybgdtocue + meanITI * temp;
       }
-      nextcue  = tempITI; // set timestamp of first cue      
+      nextcue  = tempITI; // set timestamp of first cue
     }
     else if (intervaldistribution == 2) { // generate uniform random numbers for itis
       u = random(0, 10000);
       temp = (float)u / 10000;
       tempu = (unsigned long)(maxITI - minITI) * temp;
-      nextcue    = minITI + tempu; // set timestamp of first cue      
-    }    
+      nextcue    = minITI + tempu; // set timestamp of first cue
+    }
   }
 
   if (randlaserflag == 1) {
@@ -671,7 +685,7 @@ void setup() {
 
   // UNCOMMENT THESE LINES FOR TRIGGERING PHOTOMETRY IMAGE COLLECTION AT BEGINNING
   digitalWrite(ttloutpin, HIGH);
-  // TILL HERE  
+  // TILL HERE
 
   // start session
   start = millis();                    // start time
@@ -751,7 +765,7 @@ void loop() {
       cues();
       lights();
     }
-    maxdelaytosolenoid = ts + rampmaxdelay;
+    maxdelaytosolenoid = ts + CSrampmaxdelay[cueList[CSct]];
     if (CSlasercheck[cueList[CSct]]) {
       deliverlasertocues();              // check whether to and deliver laser if needed
     }
@@ -839,10 +853,10 @@ void loop() {
   if (!ITIflag && ts >= nextfxdsolenoid && nextfxdsolenoid != 0) { // give fixed solenoid
     if (timeforfirstlick <= CS_t_fxd[2 * cueList[CSct] + 1]) {
       actualopentime = (float)timeforfirstlick / (CS_t_fxd[2 * cueList[CSct] + 1]);
-      actualopentime = pow(actualopentime, ramptimingexp);
+      actualopentime = pow(actualopentime, CSrampexp[cueList[CSct]]);
       actualopentime = actualopentime * CSopentime[2 * cueList[CSct] + 1];
     }
-    else if (timeforfirstlick <= rampmaxdelay && timeforfirstlick > CS_t_fxd[2 * cueList[CSct] + 1]) {
+    else if (timeforfirstlick <= CSrampmaxdelay[cueList[CSct]] && timeforfirstlick > CS_t_fxd[2 * cueList[CSct] + 1]) {
       actualopentime = CSopentime[2 * cueList[CSct] + 1];
     }
     Serial.print(CSsolenoidcode[2 * cueList[CSct] + 1]);
@@ -992,16 +1006,16 @@ void loop() {
 
     if (ITIflag == false) {            // if exit was from a trial, move into ITI and set the next cue and bgdsolenoid times
       ITIflag = true;
-      if (meanITI==maxITI) {
-        nextcue = ts+meanITI;
+      if (meanITI == maxITI) {
+        nextcue = ts + meanITI;
       }
       else {
-        if (intervaldistribution ==1 || intervaldistribution ==3) {
+        if (intervaldistribution == 1 || intervaldistribution == 3) {
           tempITI = 0;
-          while (tempITI<=minITI) {
+          while (tempITI <= minITI) {
             u = random(0, 10000);
-            temp = (float)u / 10000;        
-            temp1 = (float)truncITI / meanITI; 
+            temp = (float)u / 10000;
+            temp1 = (float)truncITI / meanITI;
             temp1 = exp(-temp1);
             temp1 = 1 - temp1;
             temp = temp * temp1;
@@ -1010,7 +1024,7 @@ void loop() {
           }
           nextcue    = (unsigned long)ts + tempITI; // set timestamp of next cue
         }
-        else if (intervaldistribution ==2) {
+        else if (intervaldistribution == 2) {
           u = random(0, 10000);
           temp = (float)u / 10000;
           tempu = (unsigned long)(maxITI - minITI) * temp;
@@ -1052,7 +1066,7 @@ void loop() {
 
 // Accept parameters from MATLAB
 void getParams() {
-  int pn = 108;                              // number of parameter inputs
+  int pn = 118;                              // number of parameter inputs
   unsigned long param[pn];                  // parameters
 
   for (int p = 0; p < pn; p++) {
@@ -1149,14 +1163,25 @@ void getParams() {
   variableintervalflag[1] = param[97];
   licklight[0]           = param[98];
   licklight[1]           = param[99];
-  ramptimingexp          = param[100];
-  CSlasercheck[0]        = param[101];
-  CSlasercheck[1]        = param[102];
-  CSlasercheck[2]        = param[103];
-  fixedsidecheck[0]      = param[104];
-  fixedsidecheck[1]      = param[105];
-  rampmaxdelay           = param[106];
-  Rewardlasercheck       = param[107];
+  CSlasercheck[0]         = param[100];
+  CSlasercheck[1]         = param[101];
+  CSlasercheck[2]         = param[102];
+  fixedsidecheck[0]      = param[103];
+  fixedsidecheck[1]      = param[104];
+  Rewardlasercheck       = param[105];
+  CSrampmaxdelay[0]      = param[106];
+  CSrampmaxdelay[1]      = param[107];
+  CSrampmaxdelay[2]      = param[108];
+  CSrampexp[0]           = param[109];
+  CSrampexp[1]           = param[110];
+  CSrampexp[2]           = param[111];
+  CSincrease[0]          = param[112];
+  CSincrease[1]          = param[113];
+  CSincrease[2]          = param[114];
+  delaybetweensoundandlight[0] = param[115];        // delay between sound cue and light cue if both present
+  delaybetweensoundandlight[1] = param[116];
+  delaybetweensoundandlight[2] = param[117];
+
 
   for (int p = 0; p < numCS; p++) {
     CSfreq[p] = CSfreq[p] * 1000;         // convert frequency from kHz to Hz
@@ -1172,6 +1197,9 @@ void getParams() {
     }
     else if (CSlight[p] == 2) {
       CSlight[p] = light2;
+    }
+    if (CSrampexp[p] == 0) {              // define exp factor as 0.5 when passed in 0
+      CSrampexp[p] = 0.5;
     }
   }
   for (int p = 0; p < 2 * numCS; p++) {
@@ -1241,9 +1269,6 @@ void getParams() {
     else if (licksolenoid[p] == 6) {
       licksolenoid[p] = lickretractsolenoid2;
     }
-  }
-  if (ramptimingexp == 0) {
-    ramptimingexp = 0.5;        // define exponent for ramp timing task, parameter cannot pass float numbers so hard-code to be 0.5 if input = 0;
   }
 }
 
@@ -1366,7 +1391,7 @@ void cues() {
   }
 
   numfxdsolenoids = 0;                                   // Zero fixed solenoids given till now
-  if (CSdur[cueList[CSct]]>0) {
+  if (CSdur[cueList[CSct]] > 0) {
     cueOff  = ts + CSdur[cueList[CSct]];                   // set timestamp of cue cessation
   }
   else {
@@ -1380,6 +1405,8 @@ void cues() {
   timeforfirstlick = 0;
   nextvacuum = ts + CS_t_fxd[2 * cueList[CSct] + 1] + maxdelaytovacuumfromcueonset;
 
+  // Sync with fiber photometry
+  digitalWrite(ttloutstoppin, HIGH);
 }
 
 void deliverlasertocues() {
@@ -1425,9 +1452,9 @@ void software_Reboot()
 
 // End session //////////////
 void endSession() {
-  digitalWrite(ttloutstoppin, HIGH);
-  delay(100);
-  digitalWrite(ttloutstoppin, LOW);
+  //digitalWrite(ttloutstoppin, HIGH);
+  //delay(100);
+  //digitalWrite(ttloutstoppin, LOW);
   Serial.print(0);                       //   code data as end of session
   Serial.print(" ");
   Serial.print(ts);                      //   send timestamp

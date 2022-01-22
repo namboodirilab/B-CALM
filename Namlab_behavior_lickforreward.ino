@@ -116,14 +116,24 @@
 //97) variable interval flag for lick 2s. 1==variable, 0==fixed
 //98) light number for lick 1
 //99) light number for lick 2
-//100) exponent factor for ramp timing 
-//101) laser on flag for CS1, 1==laser on, 0==laser off
-//102) laser on flag for CS2, 1==laser on, 0==laser off
-//103) laser on flag for CS3, 1==laser on, 0==laser off
-//104) fixed reward check for left lick tube (lick tube 1) for delay discounting task 
-//105) fixed reward check for right lick tube (lick tube 2) for delay discounting task 
-//106) max delay to reward for ramp timing task 
-//107) laser flag for reward in ramp timing task, triggered by the first lick after cue if reward is bigger than a certain amount
+//100) laser on flag for CS1, 1==laser on, 0==laser off
+//101) laser on flag for CS2, 1==laser on, 0==laser off
+//102) laser on flag for CS3, 1==laser on, 0==laser off
+//103) fixed reward check for left lick tube (lick tube 1) for delay discounting task
+//104) fixed reward check for right lick tube (lick tube 2) for delay discounting task
+//105) reward laser check flag 1==laser, 0==no laser
+//106) ramp max delay to CS1 for ramp timing task
+//107) ramp max delay to CS2 for ramp timing task 
+//108) ramp max delay to CS3 for ramp timing task 
+//109) exponent factor for ramp function for CS1
+//110) exponent factor for ramp function for CS2
+//111) exponent factor for ramp function for CS3
+//112) frequency increasing or decreasing for CS1
+//113) frequency increasing or decreasing for CS2
+//114) frequency increasing or decreasing for CS3
+//115) delay between sound cue and light cue if both are delivered for CS1, if>0, sound precedes light, if==0, occur at the same time, if<0 light precedes sound
+//116) delay between sound cue and light cue if both are delivered for CS2, if>0, sound precedes light, if==0, occur at the same time, if<0 light precedes sound
+//117) delay between sound cue and light cue if both are delivered for CS3, if>0, sound precedes light, if==0, occur at the same time, if<0 light precedes sound
 
 #include <math.h>
 #include <avr/wdt.h>
@@ -194,9 +204,13 @@ boolean rewardactive;
 unsigned long maxdelaytosolenoid;
 unsigned long cueonset;
 float actualopentime;
-float ramptimingexp;
-float rampmaxdelay;
 unsigned long timeforfirstlick;
+unsigned long CSrampmaxdelay[numCS];
+unsigned long CSrampexp[numCS];
+unsigned long CSincrease[numCS];
+signed long delaybetweensoundandlight[numCS];
+boolean cueover;                  // indicator for cue to be over or not
+unsigned long secondcue;          // for second cue in both cues task
 
 const int numlicktube = 2;       // number of recording lick tubes for lick dependent experiments
 unsigned long reqlicknum[numlicktube];
@@ -748,7 +762,7 @@ void loop() {
 
 // Accept parameters from MATLAB
 void getParams() {
-  int pn = 108;                              // number of parameter inputs
+  int pn = 118;                              // number of parameter inputs
   unsigned long param[pn];                  // parameters
 
   for (int p = 0; p < pn; p++) {
@@ -845,14 +859,24 @@ void getParams() {
   variableintervalflag[1]   = param[97];
   licklight[0]           = param[98];
   licklight[1]           = param[99];
-  ramptimingexp          = param[100];
-  CSlasercheck[0]         = param[101];
-  CSlasercheck[1]         = param[102];
-  CSlasercheck[2]         = param[103];
-  fixedsidecheck[0]      = param[104];
-  fixedsidecheck[1]      = param[105];
-  rampmaxdelay           = param[106];
-  Rewardlasercheck       = param[107];
+  CSlasercheck[0]         = param[100];
+  CSlasercheck[1]         = param[101];
+  CSlasercheck[2]         = param[102];
+  fixedsidecheck[0]      = param[103];
+  fixedsidecheck[1]      = param[104];
+  Rewardlasercheck       = param[105];
+  CSrampmaxdelay[0]      = param[106];
+  CSrampmaxdelay[1]      = param[107];
+  CSrampmaxdelay[2]      = param[108];
+  CSrampexp[0]           = param[109];
+  CSrampexp[1]           = param[110];
+  CSrampexp[2]           = param[111];
+  CSincrease[0]          = param[112];
+  CSincrease[1]          = param[113];
+  CSincrease[2]          = param[114];
+  delaybetweensoundandlight[0] = param[115];        // delay between sound cue and light cue if both present
+  delaybetweensoundandlight[1] = param[116];
+  delaybetweensoundandlight[2] = param[117];
 
   for (int p = 0; p < numCS; p++) {
     CSfreq[p] = CSfreq[p] * 1000;         // convert frequency from kHz to Hz

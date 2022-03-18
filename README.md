@@ -1,4 +1,4 @@
-# Behavior Controller for Associative Learning and Memory Software and Hardware Introduction 
+# Behavior Controller for Associative Learning and Memory (B-CALM): Software and Hardware Introduction 
 This readme file briefly introduces the supplementary files for the Behavior controller system for assoctiative learning and memory (B-CALM). <br />
  <br />
 

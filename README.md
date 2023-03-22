@@ -11,6 +11,9 @@ This readme file briefly introduces the supplementary files for the Behavior con
 ### [TASK CODES FOLDER](https://github.com/namboodirilab/B-CALM/tree/main/task%20codes)
  The first part of this folder contains the **MATLAB GUI code**--[headfix_GUI.m](https://github.com/namboodirilab/B-CALM/blob/main/task%20codes/headfix_GUI.m), **the actual GUI figure file made in GUIDE**--[headfix_GUI.fig](https://github.com/namboodirilab/B-CALM/blob/main/task%20codes/headfix_GUI.fig),  and **the data saving and plotting file** for current experiment--[conditioning_prog.m](https://github.com/namboodirilab/B-CALM/blob/main/task%20codes/conditioning_prog.m).
   
+  We have also developed a programmatic GUI, running code with the plotting function in the **programmatic GUI folder** (https://github.com/namboodirilab/B-CALM/tree/main/task%20codes/programmatic%20GUI) to adapt to MATLAB's future versions which will discontinue GUIDE. 
+  
+  
   The second part of this folder contains five Arduino task scripts for running five different experiments. Task parameters and instructions of running each one are documented in the [Task running overview](https://github.com/namboodirilab/B-CALM/blob/main/Task%20running%20overview.pdf). <br />
   - [Namlab_behavior_cues.ino](https://github.com/namboodirilab/B-CALM/tree/main/task%20codes/Namlab_behavior_cues) - This is experiment mode one in the GUI setting. This is for cue triggered experiments (both Pavlovian and cue-action-reward). <br />
   - [Namlab_behavior_randomrewards.ino](https://github.com/namboodirilab/B-CALM/tree/main/task%20codes/Namlab_behavior_randomrewards) - This is experiment mode two in the GUI, for lick training animals with a poission distribution of rewards. <br />

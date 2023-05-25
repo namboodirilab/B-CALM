@@ -272,6 +272,7 @@ unsigned long variableintervalflag[numlicktube];
 float rewardprobforlick[numlicktube];
 unsigned long licklight[numlicktube];
 unsigned long fixedsidecheck[numlicktube];
+int progressivemultiplier[numlicktube];
 
 unsigned long laserlatency;      // Laser latency wrt cue (ms)
 unsigned long laserduration;     // Laser duration (ms)
@@ -1212,7 +1213,7 @@ void loop() {
 
 // Accept parameters from MATLAB
 void getParams() {
-  int pn = 156;                              // number of parameter inputs
+  int pn = 158;                              // number of parameter inputs
   unsigned long param[pn];                  // parameters
 
   for (int p = 0; p < pn; p++) {
@@ -1357,6 +1358,8 @@ void getParams() {
   CSsecondcuelight[1]            = param[153];
   CSsecondcuelight[2]            = param[154];
   CSsecondcuelight[3]            = param[155];
+  progressivemultiplier[0]       = param[156];
+  progressivemultiplier[1]       = param[157];
 
   for (int p = 0; p < numCS; p++) {
     CSfreq[p] = CSfreq[p] * 1000;         // convert frequency from kHz to Hz

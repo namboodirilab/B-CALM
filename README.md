@@ -1,5 +1,5 @@
 # Behavior Controller for Associative Learning and Memory (B-CALM): Software and Hardware Introduction 
-This readme file briefly introduces the supplementary files for the Behavior controller system for assoctiative learning and memory (B-CALM). <br />
+This readme file briefly introduces the supplementary files for the Behavior controller system for assoctiative learning and memory (B-CALM). You can access the paper for free [here](rdcu.be/dha7x) <br />
  <br />
 
 ### [CIRCUIT SCHEMATIC PDF FILE](https://github.com/namboodirilab/B-CALM/blob/main/circuit%20schematic.pdf)
